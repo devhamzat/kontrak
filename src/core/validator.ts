@@ -38,12 +38,10 @@ export function matchSchema(request: NetworkRequest, schemas: ApiSchema[]): ApiS
       return false;
     }
     
-    // Attempt regex match first, fallback to simple string includes
     try {
       const regex = new RegExp(schema.urlPattern);
       if (regex.test(request.url)) return true;
     } catch {
-      // Ignore regex compilation error
     }
     
     return request.url.includes(schema.urlPattern);

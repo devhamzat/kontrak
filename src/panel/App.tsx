@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { ApiSchema, NetworkRequest, ValidationResult } from '../core/types';
 import { getSchemas, saveSchemas } from '../storage/store';
-import { Plus, Trash2, CheckCircle2, XCircle } from 'lucide-react';
+import { Plus, Trash2, CheckCircle2, XCircle, Edit2 } from 'lucide-react';
+import CodeMirror from '@uiw/react-codemirror';
+import { json } from '@codemirror/lang-json';
 import './App.css';
 
 interface ValidatedRequest {
@@ -18,12 +20,11 @@ const App: React.FC = () => {
   const [newSchemaUrl, setNewSchemaUrl] = useState('');
   const [newSchemaMethod, setNewSchemaMethod] = useState('GET');
   const [newSchemaJson, setNewSchemaJson] = useState('{\n  "type": "object",\n  "properties": {}\n}');
+  const [editingSchemaId, setEditingSchemaId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load schemas initial
     getSchemas().then(setSchemas);
 
-    // Connect to background script
     const port = chrome.runtime.connect({ name: 'kontrak-panel' });
     
     port.onMessage.addListener((msg) => {
@@ -31,28 +32,52 @@ const App: React.FC = () => {
         setRequests(prev => [
           { id: crypto.randomUUID(), ...msg.payload },
           ...prev
-        ].slice(0, 100)); // Keep last 100
+        ].slice(0, 100));
       }
     });
 
     return () => port.disconnect();
   }, []);
 
-  const handleAddSchema = async () => {
+  const handleEditSchema = (schema: ApiSchema) => {
+    setEditingSchemaId(schema.id);
+    setNewSchemaUrl(schema.urlPattern);
+    setNewSchemaMethod(schema.method);
+    setNewSchemaJson(JSON.stringify(schema.schema, null, 2));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingSchemaId(null);
+    setNewSchemaUrl('');
+    setNewSchemaMethod('GET');
+    setNewSchemaJson('{\n  "type": "object",\n  "properties": {}\n}');
+  };
+
+  const handleSaveSchema = async () => {
     try {
       const parsed = JSON.parse(newSchemaJson);
-      const newSchema: ApiSchema = {
-        id: crypto.randomUUID(),
-        name: newSchemaUrl,
-        urlPattern: newSchemaUrl,
-        method: newSchemaMethod,
-        schema: parsed
-      };
-      const updated = [...schemas, newSchema];
-      setSchemas(updated);
-      await saveSchemas(updated);
-      setNewSchemaUrl('');
-      setNewSchemaJson('{\n  "type": "object",\n  "properties": {}\n}');
+      if (editingSchemaId) {
+        const updated = schemas.map(s => 
+          s.id === editingSchemaId 
+            ? { ...s, name: newSchemaUrl, urlPattern: newSchemaUrl, method: newSchemaMethod, schema: parsed }
+            : s
+        );
+        setSchemas(updated);
+        await saveSchemas(updated);
+      } else {
+        const newSchema: ApiSchema = {
+          id: crypto.randomUUID(),
+          name: newSchemaUrl,
+          urlPattern: newSchemaUrl,
+          method: newSchemaMethod,
+          schema: parsed
+        };
+        const updated = [...schemas, newSchema];
+        setSchemas(updated);
+        await saveSchemas(updated);
+      }
+      handleCancelEdit();
     } catch (e) {
       alert('Invalid JSON Schema');
     }
@@ -115,7 +140,7 @@ const App: React.FC = () => {
         {activeTab === 'schemas' && (
           <div className="schemas-panel">
             <div className="add-schema">
-              <h3>Add New Schema</h3>
+              <h3>{editingSchemaId ? 'Edit Schema' : 'Add New Schema'}</h3>
               <div className="form-group row">
                 <select value={newSchemaMethod} onChange={e => setNewSchemaMethod(e.target.value)}>
                   <option value="ALL">ALL</option>
@@ -132,19 +157,30 @@ const App: React.FC = () => {
                   className="flex-1"
                 />
               </div>
-              <textarea 
-                value={newSchemaJson} 
-                onChange={e => setNewSchemaJson(e.target.value)}
-                placeholder="JSON Schema definition"
-                rows={10}
-              />
-              <button 
-                onClick={handleAddSchema} 
-                disabled={!newSchemaUrl || !newSchemaJson}
-                className="btn-primary"
-              >
-                <Plus size={16} /> Add Schema
-              </button>
+              <div style={{ border: '1px solid var(--border-color)', borderRadius: '0.375rem', overflow: 'hidden', backgroundColor: 'var(--bg-color)' }}>
+                <CodeMirror
+                  value={newSchemaJson}
+                  height="300px"
+                  extensions={[json()]}
+                  onChange={(value) => setNewSchemaJson(value)}
+                  theme="dark"
+                  style={{ fontSize: '14px', fontFamily: 'monospace' }}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button 
+                  onClick={handleSaveSchema} 
+                  disabled={!newSchemaUrl || !newSchemaJson}
+                  className="btn-primary"
+                >
+                  <Plus size={16} /> {editingSchemaId ? 'Update Schema' : 'Add Schema'}
+                </button>
+                {editingSchemaId && (
+                  <button onClick={handleCancelEdit} className="btn-icon" style={{ padding: '0.75rem 1rem', background: 'var(--border-color)', fontWeight: 500 }}>
+                    Cancel
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="schema-list">
@@ -156,9 +192,14 @@ const App: React.FC = () => {
                     <span className="method">{s.method}</span>
                     <span className="url">{s.urlPattern}</span>
                   </div>
-                  <button onClick={() => handleDeleteSchema(s.id)} className="btn-icon">
-                    <Trash2 size={16} color="red" />
-                  </button>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button onClick={() => handleEditSchema(s)} className="btn-icon">
+                      <Edit2 size={16} color="var(--primary-color)" />
+                    </button>
+                    <button onClick={() => handleDeleteSchema(s.id)} className="btn-icon">
+                      <Trash2 size={16} color="red" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
