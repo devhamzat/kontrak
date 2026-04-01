@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Kontrak",
+  "version": "1.0.0",
+  "description": "Validates API responses against predefined JSON schemas in real-time.",
+  "permissions": ["storage"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "devtools_page": "devtools.html"
+}
