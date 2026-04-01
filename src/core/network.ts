@@ -12,7 +12,6 @@ export function setupNetworkListener() {
       try {
         parsedBody = body ? JSON.parse(body) : null;
       } catch (e) {
-        // Not a JSON response, leaving as string
       }
 
       const networkRequest: NetworkRequest = {
@@ -24,12 +23,10 @@ export function setupNetworkListener() {
         timestamp: Date.now()
       };
 
-      // Send the captured request to the background script
       chrome.runtime.sendMessage({
         type: 'NETWORK_REQUEST',
         payload: networkRequest
       }).catch(() => {
-        // Ignored. The background script might be inactive or not listening.
       });
     });
   });

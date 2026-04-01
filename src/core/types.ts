@@ -12,7 +12,7 @@ export interface ApiSchema {
   name: string;
   urlPattern: string;
   method: string;
-  schema: any; // JSON Schema definition
+  schema: any;
 }
 
 export interface ValidationError {
