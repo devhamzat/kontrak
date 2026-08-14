@@ -1,0 +1,30 @@
+{
+  "name": "@kontrak/extension",
+  "private": true,
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@codemirror/lang-json": "^6.0.2",
+    "@kontrak/core": "0.1.0",
+    "@kontrak/plugin-json-schema": "0.1.0",
+    "@kontrak/plugin-openapi": "0.1.0",
+    "@kontrak/protocol": "0.1.0",
+    "@uiw/react-codemirror": "^4.25.9",
+    "lucide-react": "^0.359.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.263",
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@vitejs/plugin-react": "^6.0.5",
+    "vite": "^8.2.1"
+  }
+}

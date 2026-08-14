@@ -1,0 +1,29 @@
+{
+  "format": "kontrak-recording",
+  "version": 1,
+  "createdAt": "2026-08-12T00:00:00.000Z",
+  "redaction": {
+    "removedHeaders": ["authorization", "cookie", "x-api-key"],
+    "redactedJsonKeys": [],
+    "replacement": "[REDACTED]"
+  },
+  "exchanges": [
+    {
+      "id": "example-1",
+      "sessionId": "example",
+      "timestamp": 1786492800000,
+      "request": {
+        "method": "GET",
+        "url": "https://example.test/users",
+        "headers": {},
+        "body": { "kind": "empty" }
+      },
+      "response": {
+        "status": 200,
+        "mediaType": "application/json",
+        "headers": {},
+        "body": { "kind": "json", "value": [{ "id": 1 }] }
+      }
+    }
+  ]
+}

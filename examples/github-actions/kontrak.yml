@@ -1,0 +1,30 @@
+name: API contract validation
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  kontrak:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build --workspace @kontrak/cli
+      - name: Validate recorded traffic
+        run: >-
+          node packages/cli/dist/cli.cjs validate examples/cli/traffic.json
+          --config examples/cli/kontrak.config.json
+          --output sarif > kontrak.sarif
+      - name: Upload SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: kontrak.sarif

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "contracts": [
+    {
+      "id": "example-api",
+      "name": "Example API",
+      "format": "openapi",
+      "path": "openapi.yaml"
+    }
+  ]
+}
