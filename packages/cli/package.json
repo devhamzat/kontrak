@@ -2,6 +2,20 @@
   "name": "@kontrak/cli",
   "version": "0.1.0",
   "license": "Apache-2.0",
+  "description": "Local-first OpenAPI and JSON Schema contract validation for development and CI.",
+  "keywords": [
+    "openapi",
+    "json-schema",
+    "api-contract",
+    "contract-testing",
+    "cli"
+  ],
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "bin": {
     "kontrak": "dist/cli.cjs"
@@ -11,17 +25,16 @@
     "README.md"
   ],
   "scripts": {
-    "build": "esbuild ./src/cli.ts --bundle --platform=node --format=cjs --outfile=./dist/cli.cjs"
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "npm run clean && esbuild ./src/cli.ts --bundle --platform=node --format=cjs --outfile=./dist/cli.cjs"
   },
-  "dependencies": {
+  "devDependencies": {
     "@kontrak/core": "0.1.0",
     "@kontrak/plugin-json-schema": "0.1.0",
     "@kontrak/plugin-openapi": "0.1.0",
     "@kontrak/plugin-sdk": "0.1.0",
     "@kontrak/recording": "0.1.0",
-    "@kontrak/sync": "0.1.0"
-  },
-  "devDependencies": {
+    "@kontrak/sync": "0.1.0",
     "esbuild": "^0.28.2"
   }
 }

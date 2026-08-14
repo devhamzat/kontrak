@@ -22,6 +22,7 @@ milestone is the optional privacy-safe SaaS boundary.
 - [MVP audit](docs/AUDIT.md)
 - [Proposed architecture](docs/ARCHITECTURE.md)
 - [Implementation roadmap](docs/ROADMAP.md)
+- [Installation guide](docs/INSTALLATION.md)
 
 ## Existing MVP
 
@@ -68,8 +69,9 @@ Useful individual commands are `npm run typecheck`, `npm test`, `npm run lint`,
 and `npm run format:check`. The `check` command runs all four quality gates used
 by CI.
 
-After a successful build, load the generated root `dist` directory as an unpacked
-extension in Chrome.
+The CLI is the primary distribution channel. The extension is available as a
+GitHub Release ZIP and can be loaded manually in Chrome developer mode. See the
+[installation guide](docs/INSTALLATION.md) for both paths.
 
 Build and try the CLI with:
 

@@ -1,52 +1,73 @@
-name: Build and Release Extension
+name: Build release artifacts
 
 on:
   push:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag (must match the package version)
+        required: true
+        default: v0.1.0
 
 permissions:
   contents: write
 
 jobs:
-  build-and-release:
+  release:
     runs-on: ubuntu-latest
-
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm run check
+      - run: npm run audit
+      - run: npm run build
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run quality checks
-        run: npm run check
-
-      - name: Audit dependencies
-        run: npm run audit
-
-      - name: Build the extension
-        run: npm run build
-
-      - name: Zip the extension
+      - name: Verify release versions
+        shell: bash
         run: |
-          cd dist
-          zip -r ../kontrak-extension.zip .
-          cd ..
+          set -euo pipefail
+          VERSION="${RELEASE_TAG#v}"
+          test "$(node -p "require('./packages/cli/package.json').version")" = "$VERSION"
+          test "$(node -p "require('./apps/extension/public/manifest.json').version")" = "$VERSION"
 
-      - name: Create Release
+      - name: Package downloads
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          (cd dist && zip -r ../artifacts/kontrak-extension-${RELEASE_TAG}.zip .)
+          npm pack --workspace @kontrak/cli --pack-destination artifacts
+          (cd artifacts && sha256sum * > SHA256SUMS.txt)
+
+      - name: Verify extension archive layout
+        run: unzip -l artifacts/kontrak-extension-${RELEASE_TAG}.zip | grep -q 'manifest.json'
+
+      - name: Create GitHub release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >-
+          gh release create "$RELEASE_TAG" artifacts/*
+          --target "$GITHUB_SHA"
+          --title "Kontrak $RELEASE_TAG"
+          --generate-notes
+          --latest
+
+      - name: Publish CLI to npm when configured
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        shell: bash
         run: |
-          TAG_NAME="${GITHUB_REF_NAME}"
-          gh release create "$TAG_NAME" kontrak-extension.zip \
-            --title "Release $TAG_NAME" \
-            --generate-notes \
-            --latest
+          if [ -z "${NODE_AUTH_TOKEN:-}" ]; then
+            echo "NPM_TOKEN is not configured; GitHub CLI artifact is still available."
+            exit 0
+          fi
+          npm publish --workspace @kontrak/cli
