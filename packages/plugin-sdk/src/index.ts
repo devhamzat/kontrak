@@ -40,8 +40,9 @@ export interface ContractChange {
   readonly pointer?: string;
 }
 
-export interface ContractPlugin<TCompiled = unknown>
-  extends ContractAdapter<TCompiled> {
+export interface ContractPlugin<
+  TCompiled = unknown,
+> extends ContractAdapter<TCompiled> {
   readonly manifest: PluginManifest;
   canImport(input: ContractInput): Promise<number> | number;
   import(

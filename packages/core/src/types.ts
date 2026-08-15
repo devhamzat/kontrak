@@ -49,11 +49,7 @@ export interface LocalExchange extends ExchangeSummary {
 
 export type DiagnosticSeverity = 'info' | 'warning' | 'error';
 export type ValidationPhase =
-  | 'import'
-  | 'match'
-  | 'request'
-  | 'response'
-  | 'system';
+  'import' | 'match' | 'request' | 'response' | 'system';
 
 export interface Diagnostic {
   readonly code: string;

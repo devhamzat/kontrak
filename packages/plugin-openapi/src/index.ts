@@ -643,9 +643,9 @@ function contractDiagnostic(
 function isOpenApiDocument(value: unknown): value is Record<string, unknown> {
   return Boolean(
     value &&
-      typeof value === 'object' &&
-      !Array.isArray(value) &&
-      typeof (value as Record<string, unknown>).openapi === 'string',
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    typeof (value as Record<string, unknown>).openapi === 'string',
   );
 }
 

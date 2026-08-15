@@ -30,8 +30,7 @@ export interface ValidationCompletedMessage {
 }
 
 export type ExtensionMessage =
-  | NetworkCapturedMessage
-  | ValidationCompletedMessage;
+  NetworkCapturedMessage | ValidationCompletedMessage;
 
 export function panelPortName(inspectedTabId: number): string {
   return `${PANEL_PORT_PREFIX}:${inspectedTabId}`;

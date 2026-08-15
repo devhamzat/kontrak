@@ -43,17 +43,17 @@ are not persisted and are lost when the panel closes.
 
 ## Correctness defects
 
-| Severity | Finding                                     | Evidence and impact                                                                                                             |
+| Severity | Finding | Evidence and impact |
 | -------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | --- | ---------------------------------------------------------------------------------------- |
-| High     | Valid JSON falsey values are corrupted      | `parsedBody                                                                                                                     |     | body`replaces valid`false`, `0`, empty string, and `null` values with the original text. |
-| High     | Only one panel connection is supported      | A single global `panelPort` is overwritten by the latest DevTools window, so results can be routed to the wrong window or lost. |
-| High     | Captures are not scoped to a tab or session | Messages carry no inspected tab/session identity. Multiple DevTools instances cannot be isolated.                               |
-| Medium   | Response decoding metadata is ignored       | `getContent` can report encoded content, but the callback only accepts the body. Binary/non-JSON content is treated as text.    |
-| Medium   | The first matching schema silently wins     | Overlapping patterns have no precedence, ambiguity diagnostic, or deterministic specificity rule beyond array order.            |
-| Medium   | Invalid regex changes matching semantics    | A malformed regex silently falls back to substring matching, hiding configuration errors.                                       |
-| Medium   | Schema persistence errors are swallowed     | Storage operations never inspect `chrome.runtime.lastError`, so quota and write failures appear successful.                     |
-| Medium   | Schema validity is not checked at save time | The UI checks only that the document is JSON; invalid or unsupported JSON Schemas are accepted.                                 |
-| Low      | Empty response handling is ambiguous        | Empty bodies become an empty string, while JSON `null` is mishandled by the falsey-value bug.                                   |
+| High | Valid JSON falsey values are corrupted | `parsedBody                                                                                                                     |     | body`replaces valid`false`, `0`, empty string, and `null` values with the original text. |
+| High | Only one panel connection is supported | A single global `panelPort` is overwritten by the latest DevTools window, so results can be routed to the wrong window or lost. |
+| High | Captures are not scoped to a tab or session | Messages carry no inspected tab/session identity. Multiple DevTools instances cannot be isolated. |
+| Medium | Response decoding metadata is ignored | `getContent` can report encoded content, but the callback only accepts the body. Binary/non-JSON content is treated as text. |
+| Medium | The first matching schema silently wins | Overlapping patterns have no precedence, ambiguity diagnostic, or deterministic specificity rule beyond array order. |
+| Medium | Invalid regex changes matching semantics | A malformed regex silently falls back to substring matching, hiding configuration errors. |
+| Medium | Schema persistence errors are swallowed | Storage operations never inspect `chrome.runtime.lastError`, so quota and write failures appear successful. |
+| Medium | Schema validity is not checked at save time | The UI checks only that the document is JSON; invalid or unsupported JSON Schemas are accepted. |
+| Low | Empty response handling is ambiguous | Empty bodies become an empty string, while JSON `null` is mishandled by the falsey-value bug. |
 
 ## Architecture limitations
 
